@@ -1,0 +1,104 @@
+
+INSTALL VARNISH 4 CENTOS AWS
+
+# atualiza os pacotes
+yum -y update;
+
+#instala o varnish
+yum -y install varnish;
+
+#checa a versão do varnish
+varnishd -V;
+	varnishd (varnish-4.0.5 revision 07eff4c29)
+	Copyright (c) 2006 Verdens Gang AS
+	Copyright (c) 2006-2014 Varnish Software AS
+
+
+#change nginx conf and set to port 8080
+
+#desliga o nginx e liga o varnish
+systemctl stop nginx
+systemctl enable varnish
+systemctl start varnish
+systemctl status varnish
+
+#substitua os arquivos
+vim /etc/varnish/default.vcl
+vim /etc/varnish/varnish.params
+vim /lib/systemd/system/varnish.service
+
+#restarta o varnish e a deamon
+systemctl stop varnish
+systemctl start varnish
+systemctl daemon-reload
+systemctl stop varnish
+systemctl start varnish
+
+#checa se o varnish está na porta certa:
+ss -tlpn| grep varnishd
+	LISTEN   0         128                 0.0.0.0:80               0.0.0.0:*        users:(("varnishd",pid=27233,fd=6))                                            
+	LISTEN   0         10                127.0.0.1:6082             0.0.0.0:*        users:(("varnishd",pid=27231,fd=5))                                            
+	LISTEN   0         128                    [::]:80                  [::]:*        users:(("varnishd",pid=27233,fd=7)) 
+
+
+#restarta tudo
+service varnish reload; service php71-php-fpm reload; service nginx reload;
+
+#vá até a pasta do magento com o user do magento e execute:
+bin/magento config:set system/full_page_cache/caching_application 2;
+bin/magento config:set system/full_page_cache/varnish/access_list localhost;
+bin/magento config:set system/full_page_cache/varnish/backend_host localhost;
+bin/magento config:set system/full_page_cache/varnish/backend_port 8080;
+bin/magento setup:config:set --http-cache-hosts=127.0.0.1:80;
+bin/magento c:c;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### DISABLE Varnish
+
+# set /etc/nginx/nginx.config to port 8080 to 80
+# restore /etc/nginx/conf.d/ *conf file
+
+#stop varnish
+systemctl stop varnish
+
+#restart nginx and phpfpm
+service php71-php-fpm reload; 
+service nginx reload;
+
+# go to magento dir and run
+bin/magento config:set system/full_page_cache/caching_application 1;
+bin/magento c:c;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#errors:
+https://devdocs.magento.com/guides/v2.4/config-guide/varnish/config-varnish-final.html
+https://support.magento.com/hc/en-us/articles/360034631211?_ga=2.18029945.1935368515.1616383960-460512055.1611066493

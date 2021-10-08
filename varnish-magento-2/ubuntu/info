@@ -1,0 +1,19 @@
+varnishd (varnish-5.2.1 revision 67e562482)
+Copyright (c) 2006 Verdens Gang AS
+Copyright (c) 2006-2015 Varnish Software AS
+
+
+
+ss -tlpn| grep nginx
+	LISTEN  0        128                     0.0.0.0:8080            0.0.0.0:*       users:(("nginx",pid=13244,fd=8),("nginx",pid=13243,fd=8),("nginx",pid=880,fd=8))
+	LISTEN  0        128                     0.0.0.0:443             0.0.0.0:*       users:(("nginx",pid=13244,fd=9),("nginx",pid=13243,fd=9),("nginx",pid=880,fd=9))
+	LISTEN  0        128                        [::]:443                [::]:*       users:(("nginx",pid=13244,fd=15),("nginx",pid=13243,fd=15),("nginx",pid=880,fd=15))
+
+
+ss -tlpn| grep varnishd
+	LISTEN  0        10                    127.0.0.1:6082            0.0.0.0:*       users:(("varnishd",pid=1871,fd=7))                                             
+	LISTEN  0        128                     0.0.0.0:80              0.0.0.0:*       users:(("cache-main",pid=1926,fd=3),("varnishd",pid=1871,fd=3))                
+	LISTEN  0        128                        [::]:80                 [::]:*       users:(("cache-main",pid=1926,fd=4),("varnishd",pid=1871,fd=4))
+
+
+	
